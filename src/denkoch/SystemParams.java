@@ -2,7 +2,9 @@ package denkoch;
 
 public interface SystemParams {
 
+    Integer NUMBER_OF_PROCESSES = 7;
     Integer NUMBER_OF_REQUESTS = 1000;
+
     Integer NUMBER_OF_TRACKS = 512;
     Integer SECTORS_PER_TRACK = 500;
     Double TIME_PER_TRACK = 0.5;
@@ -12,7 +14,7 @@ public interface SystemParams {
     Double SECTOR_ACCESS_TIME = (double) (60 * 1000) / (SECTORS_PER_TRACK * RPM);
 
     Integer NUMBER_OF_BUFFERS = 10;
-    //    Integer LEFT_SEGMENT_SIZE = 2;
+//    Integer LEFT_SEGMENT_SIZE = 2;
 //    Integer MIDDLE_SEGMENT_SIZE = 2;
     Integer LEFT_SEGMENT_SIZE = 3;
     Integer MIDDLE_SEGMENT_SIZE = 3;
@@ -23,7 +25,5 @@ public interface SystemParams {
     Double INTERRUPT_TIME = 0.05;
     Double QUANTUM = 20.0;
     Double PROCESSING_TIME = 7.0;
-
-    Integer NUMBER_OF_PROCESSES = 3;
 
 }

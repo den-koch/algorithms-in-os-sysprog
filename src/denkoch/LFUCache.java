@@ -7,6 +7,13 @@ import static denkoch.Logger.ADDED_TO_CACHE;
 import static denkoch.Logger.MOVED_WITHIN_CACHE;
 import static denkoch.SystemParams.*;
 
+/**
+ * Represents the Least Frequently Used (LFU) cache with three segments:
+ * left, middle, and right, for managing cache buffers based on their frequency of usage.
+ * <p>
+ * Buffers are shifted between segments as their frequency of usage changes.
+ * The cache evicts the least frequently used buffers when capacity limits are reached.
+ */
 public class LFUCache extends Cache {
 
     private final LinkedList<Buffer> leftSegment;
@@ -19,6 +26,13 @@ public class LFUCache extends Cache {
         this.rightSegment = new LinkedList<>();
     }
 
+    /**
+     * Retrieves a buffer by its track ID. If the buffer is not present, a new buffer is created
+     * and added to the cache. Buffers are shifted between segments as their frequency changes.
+     *
+     * @param trackId the track ID of the buffer to retrieve.
+     * @return the {@link Buffer} associated with the track ID.
+     */
     @Override
     public Buffer getBuffer(Integer trackId) {
         if (containsBuffer(trackId)) {
@@ -47,6 +61,12 @@ public class LFUCache extends Cache {
         return super.getBuffer(trackId);
     }
 
+    /**
+     * Shifts buffers between segments and adds a new buffer to the left segment.
+     * Evicts the least frequently used buffers if capacity is exceeded.
+     *
+     * @param buffer the buffer to add to the cache.
+     */
     private void shiftAndAddBuffer(Buffer buffer) {
         if (leftSegment.size() == LEFT_SEGMENT_SIZE) {
             Buffer lastLeftSegment = leftSegment.removeLast();
@@ -62,6 +82,9 @@ public class LFUCache extends Cache {
         leftSegment.addFirst(buffer);
     }
 
+    /**
+     * Removes the least frequently used buffer from the right segment.
+     */
     private void removeBufferFromRightSegment() {
         if (rightSegment.isEmpty()) return;
         rightSegment.stream()

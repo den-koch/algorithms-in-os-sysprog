@@ -5,11 +5,21 @@ import java.util.*;
 import static denkoch.Logger.*;
 import static denkoch.SystemParams.*;
 
+/**
+ * Main class for the disk scheduling simulation program.
+ * It handles the initialization, simulation, and logging of processes, requests, and disk scheduling.
+ */
 public class Main {
 
     private final static Integer HEAD = 50;
-    private static final DiskScheduler.Order ORDER = DiskScheduler.Order.ASC;
 
+    /**
+     * Runs the simulation of the disk scheduler and processes.
+     *
+     * @param processes     the list of {@link Process} instances.
+     * @param diskScheduler the {@link DiskScheduler} used to handle disk requests.
+     * @param lfuCache      the {@link LFUCache} to store frequently used data.
+     */
     public static void runSimulation(List<Process> processes, DiskScheduler diskScheduler, LFUCache lfuCache) {
         double totalSimulationTime = 0;
 
@@ -60,10 +70,22 @@ public class Main {
         DiskScheduler diskScheduler;
         switch (scheduler) {
             case "FIFO" -> diskScheduler = new FIFOScheduler(HEAD);
-            case "LOOK" -> diskScheduler = new LOOKScheduler(HEAD, ORDER);
-            case "FLOOK" -> diskScheduler = new FLOOKScheduler(HEAD, ORDER);
+            case "LOOK" -> diskScheduler = new LOOKScheduler(HEAD);
+            case "FLOOK" -> diskScheduler = new FLOOKScheduler(HEAD);
             default -> {
                 throw new IllegalArgumentException(INVALID_SCHEDULER_ERROR);
+            }
+        }
+
+        if (diskScheduler instanceof LOOKScheduler || diskScheduler instanceof FLOOKScheduler) {
+            Logger.log(SELECT_ORDER);
+            String order = scanner.nextLine();
+            switch (order) {
+                case "ASC" -> diskScheduler.setOrder(DiskScheduler.Order.ASC);
+                case "DESC" -> diskScheduler.setOrder(DiskScheduler.Order.DESC);
+                default -> {
+                    throw new IllegalArgumentException(INVALID_SCHEDULER_ERROR);
+                }
             }
         }
 
@@ -80,6 +102,8 @@ public class Main {
             createRequests(processes);
             System.out.println(processes + "\n");
         }
+
+
 
         LFUCache lfuCache = new LFUCache();
 
@@ -108,50 +132,23 @@ public class Main {
 
     private static void createRequests(List<Process> processes) {
 
-//        Process process1 = new Process(1, new LinkedList<>(List.of(
-//                new Request(95, Request.RequestType.READ),
-//                new Request(164, Request.RequestType.WRITE),
-//                new Request(199, Request.RequestType.WRITE),
-//                new Request(30, Request.RequestType.READ),
-//                new Request(75, Request.RequestType.READ)
-//        )));
-//
-//        Process process2 = new Process(2, new LinkedList<>(List.of(
-//                new Request(130, Request.RequestType.WRITE),
-//                new Request(62, Request.RequestType.READ),
-//                new Request(11, Request.RequestType.READ),
-//                new Request(95, Request.RequestType.WRITE),
-//                new Request(119, Request.RequestType.WRITE)
-//        )));
         Process process1 = new Process(1, new LinkedList<>(List.of(
                 new Request(95, Request.RequestType.READ),
                 new Request(164, Request.RequestType.WRITE),
-                new Request(11, Request.RequestType.WRITE),
-                new Request(95, Request.RequestType.READ),
-                new Request(199, Request.RequestType.READ)
+                new Request(199, Request.RequestType.WRITE),
+                new Request(30, Request.RequestType.READ),
+                new Request(75, Request.RequestType.READ)
         )));
 
         Process process2 = new Process(2, new LinkedList<>(List.of(
                 new Request(130, Request.RequestType.WRITE),
-                new Request(119, Request.RequestType.READ),
                 new Request(62, Request.RequestType.READ),
-                new Request(75, Request.RequestType.WRITE),
-                new Request(30, Request.RequestType.WRITE)
-        )));
-
-        Process process3 = new Process(3, new LinkedList<>(List.of(
-                new Request(75, Request.RequestType.READ),
-                new Request(199, Request.RequestType.WRITE),
-                new Request(30, Request.RequestType.WRITE)
-        )));
-
-        Process process4 = new Process(4, new LinkedList<>(List.of(
                 new Request(11, Request.RequestType.READ),
-                new Request(130, Request.RequestType.WRITE),
-                new Request(30, Request.RequestType.WRITE)
+                new Request(95, Request.RequestType.WRITE),
+                new Request(119, Request.RequestType.WRITE)
         )));
 
-        processes.addAll(List.of(process1, process2, process3, process4));
+        processes.addAll(List.of(process1, process2));
 
 //        Process process1 = new Process(1, new LinkedList<>(List.of(
 //                new Request(1, Request.RequestType.READ),
@@ -168,6 +165,8 @@ public class Main {
 //                new Request(8, Request.RequestType.WRITE),
 //                new Request(9, Request.RequestType.READ)
 //        )));
+//
+//        processes.add(process1);
     }
 
 

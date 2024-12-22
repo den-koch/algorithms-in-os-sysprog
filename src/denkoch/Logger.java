@@ -5,6 +5,7 @@ public interface Logger {
     String SELECT_SCHEDULER = "Select disk scheduler {FIFO, LOOK, FLOOK}: ";
     String YES = "YES";
     String NO = "NO";
+    String SELECT_ORDER = "Select disk scheduler order {ASC, DESC}: ";
     String GENERATE_REQUESTS = "Generate requests? {" + YES + ", " + NO + "}: ";
 
     String REQUEST_OPERATION_INFO = "DRIVER: Request {processId = %d, track = %d, requestType = %s}, Request processing time = %.3f\n";
