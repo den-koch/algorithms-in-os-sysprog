@@ -1,5 +1,6 @@
 package denkoch;
 
+import javax.swing.*;
 import java.util.*;
 
 import static denkoch.Logger.*;
@@ -22,13 +23,14 @@ public class Main {
      */
     public static void runSimulation(List<Process> processes, DiskScheduler diskScheduler, LFUCache lfuCache) {
         double totalSimulationTime = 0;
+        DiskInterruptHandler diskInterruptHandler = new DiskInterruptHandler();
 
         while (hasPendingProcesses(processes)) {
             for (Process process : processes) {
-                double processTime = 0;
+                double currentQuantum = 0;
                 LinkedList<Request> requests = process.getRequests();
 
-                while (!requests.isEmpty() && processTime < QUANTUM) {
+                while (!requests.isEmpty() && currentQuantum < QUANTUM) {
                     Request request = requests.removeFirst();
 
                     int track = request.getTrackNumber();
@@ -37,20 +39,29 @@ public class Main {
                     lfuCache.getBuffer(track);
                     diskScheduler.addRequest(request);
 
-                    double accessTime = AVG_ROTATION_DELAY + SECTOR_ACCESS_TIME + INTERRUPT_TIME;
+                    double accessTime = AVG_ROTATION_DELAY + SECTOR_ACCESS_TIME;
                     switch (operation) {
-                        case READ -> accessTime += READ_SYSTEM_TIME;
-                        case WRITE -> accessTime += WRITE_SYSTEM_TIME;
+                        case READ -> {
+                            accessTime += READ_SYSTEM_TIME;
+                            diskInterruptHandler.handleInterrupt(request);
+                        }
+                        case WRITE -> {
+                            accessTime += WRITE_SYSTEM_TIME;
+                            diskInterruptHandler.handleInterrupt(request);
+                        }
                     }
-                    processTime += accessTime + PROCESSING_TIME;
+
+                    currentQuantum += accessTime + diskInterruptHandler.getInterruptHandlingTime();
+
+                    currentQuantum += PROCESSING_TIME;
 
                     Logger.log(REQUEST_OPERATION_INFO, process.getProcessId(), track, operation, accessTime + PROCESSING_TIME);
 
-                    totalSimulationTime += processTime;
+                    totalSimulationTime += currentQuantum;
                 }
 
-                if (processTime >= QUANTUM) {
-                    Logger.log(PROCESSING_QUANTUM_TIME, processTime);
+                if (currentQuantum >= QUANTUM) {
+                    Logger.log(PROCESSING_QUANTUM_TIME, currentQuantum);
                 }
             }
         }
@@ -59,6 +70,7 @@ public class Main {
         totalSimulationTime += diskScheduler.getScheduleTime();
         Logger.log(TOTAL_SIMULATION_TIME, totalSimulationTime);
 
+        GraphPlotter.plot(diskScheduler.getRequestTimes(), diskScheduler.getClass().getSimpleName());
     }
 
     public static void main(String[] args) {
@@ -102,7 +114,6 @@ public class Main {
             createRequests(processes);
             System.out.println(processes + "\n");
         }
-
 
 
         LFUCache lfuCache = new LFUCache();

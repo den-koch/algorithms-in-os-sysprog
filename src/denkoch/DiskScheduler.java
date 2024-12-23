@@ -1,5 +1,8 @@
 package denkoch;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static denkoch.Logger.MOVE_DISK_HEAD;
 import static denkoch.Logger.TOTAL_SCHEDULING_TIME;
 import static denkoch.SystemParams.*;
@@ -21,6 +24,7 @@ public abstract class DiskScheduler {
     protected double scheduleTime;
     protected Integer head;
     protected Order order;
+    private final List<Double> requestTimes;
 
     /**
      * Constructs a new {@code DiskScheduler} with the specified initial disk head position.
@@ -29,6 +33,7 @@ public abstract class DiskScheduler {
      */
     public DiskScheduler(Integer head) {
         this.head = head;
+        requestTimes = new ArrayList<>();
     }
 
     public void setOrder(Order order) {
@@ -36,6 +41,7 @@ public abstract class DiskScheduler {
     }
 
     public abstract void addRequest(Request request);
+
     public abstract void processRequests();
 
     /**
@@ -54,7 +60,7 @@ public abstract class DiskScheduler {
      *
      * @param request the {@link Request} containing the target track.
      */
-    public void performHeadMovement(Request request){
+    public void performHeadMovement(Request request) {
         int track = request.getTrackNumber();
         int distance = Math.abs(track - head);
         double request_time;
@@ -66,10 +72,15 @@ public abstract class DiskScheduler {
         }
         request_time += AVG_ROTATION_DELAY;
 
+        requestTimes.add(request_time);
+
         Logger.log(MOVE_DISK_HEAD, track, request_time);
 
         scheduleTime += request_time;
         head = track;
     }
 
+    public List<Double> getRequestTimes() {
+        return requestTimes;
+    }
 }

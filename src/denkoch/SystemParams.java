@@ -3,7 +3,7 @@ package denkoch;
 public interface SystemParams {
 
     Integer NUMBER_OF_PROCESSES = 7;
-    Integer NUMBER_OF_REQUESTS = 1000;
+    Integer NUMBER_OF_REQUESTS = 100;
 
     Integer NUMBER_OF_TRACKS = 512;
     Integer SECTORS_PER_TRACK = 500;

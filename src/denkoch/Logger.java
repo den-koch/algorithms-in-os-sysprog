@@ -12,6 +12,8 @@ public interface Logger {
     String TOTAL_SCHEDULING_TIME = "DRIVER: Total scheduling time = %.3f ms \n";
     String TOTAL_SIMULATION_TIME = "DRIVER: Total simulation time = %.3f ms \n";
     String PROCESSING_QUANTUM_TIME = "DRIVER: Processing time = %.3f ms exceeded quantum time!\n";
+    String INTERRUPT_HANDLED = "DRIVER: Interrupt handling for request %s\n";
+
 
     String INITIAL_HEAD_POSITION = "SCHEDULER: Initial disk head position = %s track\n";
     String MOVE_DISK_HEAD = "SCHEDULER: Disk head moved to %s track {time = %.2f}\n";
